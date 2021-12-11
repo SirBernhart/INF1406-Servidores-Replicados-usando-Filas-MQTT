@@ -79,31 +79,22 @@ public class Message {
         this.vistoem = pVistoEm;
     }
 
-    public String serialize(Message pContent) {
-        Gson gson = new Gson();
-        return gson.toJson(pContent);
-    }
-
     public Integer getIdServ(){
         return this.idServ;
     }
-
+    
     public void setIdServ(Integer pIdServ){
         this.idServ = pIdServ;
     }
 
-    public void deserialize(String pContentJson, Message pMessage){
-        
+    public static String serialize(Message pContent) {
         Gson gson = new Gson();
-        Message content = gson.fromJson(pContentJson, Message.class);
+        return gson.toJson(pContent);
+    }
 
-        pMessage.tipomsg = content.tipomsg;
-        pMessage.chave = content.chave;
-        pMessage.topico_resp = content.topico_resp;
-        pMessage.idpedido = content.idpedido;
-        pMessage.novovalor = content.novovalor;
-        pMessage.vistoem = content.vistoem;
-        pMessage.idServ = content.idServ;
+    public static Message deserialize(String pContentJson){
+        Gson gson = new Gson();
+        return gson.fromJson(pContentJson, Message.class);
     }
 
 }
