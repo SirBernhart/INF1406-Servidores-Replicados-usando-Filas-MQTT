@@ -6,14 +6,14 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class Server {
-    static String topic        = "inf-1406";
+    static String topic        = "inf1406-reqs";
     static String broker       = "tcp://localhost:1883";//"tcp://mqtt.eclipseprojects.io:1883";
     static String clientId;
     static MemoryPersistence persistence = new MemoryPersistence();
 
     public static void main(String args[]) {
         clientId = args[0];
-        System.out.println("I'm server " + clientId);
+        System.out.println("====> Initializing server " + clientId);
 
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
