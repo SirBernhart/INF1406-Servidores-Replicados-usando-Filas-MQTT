@@ -13,6 +13,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <repositories>
@@ -39,6 +40,11 @@
       <artifactId>gson</artifactId>
       <version>2.8.9</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.0.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -56,7 +62,7 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.8.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
@@ -91,6 +97,7 @@
             <execution>
               <goals>
                 <goal>exec</goal>
+                <goal>java</goal>
               </goals>
             </execution>
           </executions>
@@ -105,30 +112,6 @@
             <environmentVariables>
               <LANG>en_US</LANG>
             </environmentVariables>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>3.0.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>com.example.Main</mainClass>
-            <arguments>
-              <argument>argument1</argument>
-            </arguments>
-            <systemProperties>
-              <systemProperty>
-                <key>myproperty</key>
-                <value>myvalue</value>
-              </systemProperty>
-            </systemProperties>
           </configuration>
         </plugin>
       </plugins>
