@@ -58,12 +58,18 @@ public class ServerManager
             System.out.println("Connecting to broker: "+broker);
             sampleClient.connect(connOpts);
             System.out.println("Connected");
+            Thread.sleep(15000);
             System.out.println("Publishing message: "+content);
             MqttMessage message = new MqttMessage(content.getBytes());
 
             message.setQos(qos);
             sampleClient.publish(topic, message);
             System.out.println("Message published");
+            Thread.sleep(5000);
+            for (Process server : serverProcesses) {
+                server.destroy();
+            }
+
             sampleClient.disconnect();
             System.out.println("Disconnected");
             System.exit(0);
@@ -74,29 +80,38 @@ public class ServerManager
             System.out.println("cause "+me.getCause());
             System.out.println("excep "+me);
             me.printStackTrace();
+        } catch(InterruptedException e)
+        {
+            e.printStackTrace();
         }
     }
 
-    public static Process exec(Class klass, List<String> args) throws IOException,
-                                               InterruptedException {
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome +
-                File.separator + "bin" +
-                File.separator + "java";
-        String classpath = System.getProperty("java.class.path");
-        String className = klass.getName();
+    public static Process exec(Class klass, List<String> args) throws IOException, InterruptedException {
+        String mavenProjPath = System.getProperty("user.dir");
+
+        String className = "\"" + klass.getName() + "\"";
+        String argsCommand = "-Dexec.args=\"";
 
         List<String> command = new LinkedList<String>();
-        command.add(javaBin);
-        command.add("-cp");
-        command.add(classpath);
-        command.add(className);
-        if (args != null) {
-            command.addAll(args);
+        command.add("D:\\Utilidades\\apache-maven-3.8.4\\bin\\mvn.cmd");
+        //command.add("compile");
+        command.add("exec:java");
+        command.add("-Dexec.mainClass=" + className);
+
+        for(int i = 0 ; i < args.size() ; i++) {
+            argsCommand += args.get(i);
+            if(i+1 < args.size())
+            {
+                argsCommand += " ";
+            }
         }
+        argsCommand += "\"";
+        
+        command.add(argsCommand);
 
+        System.out.println(command);
         ProcessBuilder builder = new ProcessBuilder(command);
-
+        builder.directory(new File(mavenProjPath));
         return builder.inheritIO().start();
         //Process process = builder.inheritIO().start();
         //process.waitFor();
