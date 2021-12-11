@@ -12,20 +12,25 @@ public class Server {
     static MemoryPersistence persistence = new MemoryPersistence();
 
     public static void main(String args[]) {
-        clientId = args[0];
-        System.out.println("====> Initializing server " + clientId);
+        clientId = "Server " + args[0];
+        System.out.println("====> Initializing server " + clientId + "\n");
+
+        ServerContentTable contentTable = new ServerContentTable();
+        contentTable.start();
 
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            System.out.println("Connecting to broker: "+broker);
+            System.out.println("Connecting to broker: "+broker + "\n");
             mqttClient.connect(connOpts);
-            System.out.println("ID: " + clientId + " Connected");
+            System.out.println("ID: " + clientId + " Connected\n");
 
             mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
-                System.out.println("Message received: " + msgRcv);
+                new ServerMessageHandler(contentTable, msgRcv.toString()).start();
+                System.out.println("ID: " + clientId + " Message received: " + msgRcv.toString()+ "\n");
             });
+            
 
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
