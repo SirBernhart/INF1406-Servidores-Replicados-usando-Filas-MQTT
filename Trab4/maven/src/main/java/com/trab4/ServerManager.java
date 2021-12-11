@@ -8,7 +8,6 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class ServerManager 
@@ -16,11 +15,10 @@ public class ServerManager
     private static Process[] serverProcesses;
     private static int  serverCount, secondsBetweenKillingServer;
     
-    static String topic        = "inf-1406";
-    static String content      = "Message from MqttPublishSample";
+    static String topic        = "inf1406-reqs";
     static int qos             = 2;
     static String broker       = "tcp://localhost:1883";
-    static String clientId     = "JavaSample";
+    static String clientId     = "ServerManager";
     static MemoryPersistence persistence = new MemoryPersistence();
 
     public static void main(String[] args)
@@ -52,25 +50,21 @@ public class ServerManager
         }
 
         try {
-            MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
+            MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             System.out.println("Connecting to broker: "+broker);
-            sampleClient.connect(connOpts);
+            mqttClient.connect(connOpts);
             System.out.println("Connected");
-            Thread.sleep(15000);
-            System.out.println("Publishing message: "+content);
-            MqttMessage message = new MqttMessage(content.getBytes());
-
-            message.setQos(qos);
-            sampleClient.publish(topic, message);
-            System.out.println("Message published");
-            Thread.sleep(5000);
+            /*mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
+                System.out.println("Message received: " + msgRcv);
+            });
+            
             for (Process server : serverProcesses) {
                 server.destroy();
-            }
+            }*/
 
-            sampleClient.disconnect();
+            mqttClient.disconnect();
             System.out.println("Disconnected");
             System.exit(0);
         } catch(MqttException me) {
@@ -80,10 +74,7 @@ public class ServerManager
             System.out.println("cause "+me.getCause());
             System.out.println("excep "+me);
             me.printStackTrace();
-        } catch(InterruptedException e)
-        {
-            e.printStackTrace();
-        }
+        } 
     }
 
     public static Process exec(Class klass, List<String> args) throws IOException, InterruptedException {
@@ -113,8 +104,5 @@ public class ServerManager
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.directory(new File(mavenProjPath));
         return builder.inheritIO().start();
-        //Process process = builder.inheritIO().start();
-        //process.waitFor();
-        //return process.exitValue();
     }
 }
