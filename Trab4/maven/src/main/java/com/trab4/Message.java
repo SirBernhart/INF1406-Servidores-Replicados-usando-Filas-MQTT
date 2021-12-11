@@ -10,6 +10,7 @@ public class Message {
     private String chave;
     private String topico_resp;
     private String idpedido;
+    private String novovalor;
 
     public Message(){}
 
@@ -18,6 +19,14 @@ public class Message {
         this.chave = pChave;
         this.topico_resp = pTopicoResp;
         this.idpedido = pIdPedido;
+    }
+
+    public Message(String pTipoMsg, String pChave, String pTopicoResp, String pIdPedido, String pNovoValor){
+        this.tipomsg = pTipoMsg;
+        this.chave = pChave;
+        this.topico_resp = pTopicoResp;
+        this.idpedido = pIdPedido;
+        this.novovalor = pNovoValor;
     }
 
     public String getTipoMsg(){
@@ -52,6 +61,14 @@ public class Message {
         this.idpedido = pIdPedido;
     }
 
+    public String getNovoValor(){
+        return this.novovalor;
+    }
+
+    public void setNovoValor(String pNovoValor){
+        this.novovalor = pNovoValor;
+    }
+
     public String serialize(Message pContent) {
         Gson gson = new Gson();
         return gson.toJson(pContent);
@@ -66,6 +83,7 @@ public class Message {
         pMessage.chave = content.chave;
         pMessage.topico_resp = content.topico_resp;
         pMessage.idpedido = content.idpedido;
+        pMessage.novovalor = content.novovalor;
     }
 
 }
