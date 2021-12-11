@@ -10,6 +10,7 @@ public class Message {
     private String chave;
     private String topico_resp;
     private Integer idpedido;
+    private Integer idServ;
     private String novovalor;
     private String vistoem;
 
@@ -83,7 +84,15 @@ public class Message {
         return gson.toJson(pContent);
     }
 
-    public void deserialize(BufferedReader pContentJson, Message pMessage){
+    public Integer getIdServ(){
+        return this.idServ;
+    }
+
+    public void setIdServ(Integer pIdServ){
+        this.idServ = pIdServ;
+    }
+
+    public void deserialize(String pContentJson, Message pMessage){
         
         Gson gson = new Gson();
         Message content = gson.fromJson(pContentJson, Message.class);
@@ -94,6 +103,7 @@ public class Message {
         pMessage.idpedido = content.idpedido;
         pMessage.novovalor = content.novovalor;
         pMessage.vistoem = content.vistoem;
+        pMessage.idServ = content.idServ;
     }
 
 }
