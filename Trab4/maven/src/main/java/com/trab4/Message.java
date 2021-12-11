@@ -9,19 +9,20 @@ public class Message {
     private String tipomsg;
     private String chave;
     private String topico_resp;
-    private String idpedido;
+    private Integer idpedido;
     private String novovalor;
+    private String vistoem;
 
     public Message(){}
 
-    public Message(String pTipoMsg, String pChave, String pTopicoResp, String pIdPedido){
+    public Message(String pTipoMsg, String pChave, String pTopicoResp, Integer pIdPedido){
         this.tipomsg = pTipoMsg;
         this.chave = pChave;
         this.topico_resp = pTopicoResp;
         this.idpedido = pIdPedido;
     }
 
-    public Message(String pTipoMsg, String pChave, String pTopicoResp, String pIdPedido, String pNovoValor){
+    public Message(String pTipoMsg, String pChave, String pTopicoResp, Integer pIdPedido, String pNovoValor){
         this.tipomsg = pTipoMsg;
         this.chave = pChave;
         this.topico_resp = pTopicoResp;
@@ -53,11 +54,11 @@ public class Message {
         this.topico_resp = pTopicoResp;
     }
 
-    public String getIdPedido(){
+    public Integer getIdPedido(){
         return this.idpedido;
     }
 
-    public void setIdPedido(String pIdPedido){
+    public void setIdPedido(Integer pIdPedido){
         this.idpedido = pIdPedido;
     }
 
@@ -67,6 +68,14 @@ public class Message {
 
     public void setNovoValor(String pNovoValor){
         this.novovalor = pNovoValor;
+    }
+
+    public String getVistoEm(){
+        return this.vistoem;
+    }
+
+    public void setVistoEm(String pVistoEm){
+        this.vistoem = pVistoEm;
     }
 
     public String serialize(Message pContent) {
@@ -84,6 +93,7 @@ public class Message {
         pMessage.topico_resp = content.topico_resp;
         pMessage.idpedido = content.idpedido;
         pMessage.novovalor = content.novovalor;
+        pMessage.vistoem = content.vistoem;
     }
 
 }
