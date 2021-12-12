@@ -12,7 +12,7 @@ public class Message {
     private Integer idpedido;
     private Integer idServ;
     private String novovalor;
-    private String vistoem;
+    private long vistoem;
 
     public Message(){}
 
@@ -71,11 +71,11 @@ public class Message {
         this.novovalor = pNovoValor;
     }
 
-    public String getVistoEm(){
+    public long getVistoEm(){
         return this.vistoem;
     }
 
-    public void setVistoEm(String pVistoEm){
+    public void setVistoEm(long pVistoEm){
         this.vistoem = pVistoEm;
     }
 
