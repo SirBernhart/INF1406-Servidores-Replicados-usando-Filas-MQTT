@@ -4,11 +4,11 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ServerLogManagerTask extends Thread{
+public class ServerLogManagerThread extends Thread{
     List<LogElement> messageLog = new LinkedList<LogElement>();
     Long cleanupInterval;
 
-    public ServerLogManagerTask(Long cleanupInterval){
+    public ServerLogManagerThread(Long cleanupInterval){
         this.cleanupInterval = cleanupInterval*1000;
         System.out.println("cleanup " + this.cleanupInterval);
     }
@@ -55,10 +55,10 @@ public class ServerLogManagerTask extends Thread{
 
     class CleanupTimer extends Thread {
         Long cleanupInterval;
-        ServerLogManagerTask logManager;
+        ServerLogManagerThread logManager;
         Message cleanupMsg;
 
-        public CleanupTimer(Long cleanupInterval, ServerLogManagerTask logManager){
+        public CleanupTimer(Long cleanupInterval, ServerLogManagerThread logManager){
             this.cleanupInterval = cleanupInterval;
             System.out.println("Sleep " + this.cleanupInterval);
             this.logManager = logManager;

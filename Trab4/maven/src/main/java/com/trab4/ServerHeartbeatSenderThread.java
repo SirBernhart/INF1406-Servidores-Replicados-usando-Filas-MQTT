@@ -6,7 +6,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class ServerHeartbeatSenderTask extends Thread{
+public class ServerHeartbeatSenderThread extends Thread{
     Message heartbeatMsg;
     String topic        = "inf1406-monitor";
     int qos             = 2;
@@ -17,7 +17,7 @@ public class ServerHeartbeatSenderTask extends Thread{
     MqttClient heartbeatClient;
     MqttMessage message;
 
-    public ServerHeartbeatSenderTask(int serverId, Long heartbeatInterval){
+    public ServerHeartbeatSenderThread(int serverId, Long heartbeatInterval){
         heartbeatMsg = new Message();
         heartbeatMsg.setTipoMsg("heartbeat");
         heartbeatMsg.setIdServ(serverId);
@@ -61,11 +61,10 @@ public class ServerHeartbeatSenderTask extends Thread{
 
     class HeartbeatTimer extends Thread {
         Long heartbeatInterval;
-        ServerHeartbeatSenderTask heartbeatSender;
+        ServerHeartbeatSenderThread heartbeatSender;
         
-        public HeartbeatTimer(Long heartbeatInterval, ServerHeartbeatSenderTask heartbeatSender){
+        public HeartbeatTimer(Long heartbeatInterval, ServerHeartbeatSenderThread heartbeatSender){
             this.heartbeatInterval = heartbeatInterval * 1000;
-            System.out.println("Sleep " + this.heartbeatInterval);
             this.heartbeatSender = heartbeatSender;
         }
 

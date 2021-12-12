@@ -26,11 +26,11 @@ public class Server {
 
         System.out.println("====> Initializing server " + clientId + "\n");
 
-        ServerContentTableTask contentTable = new ServerContentTableTask(clientId);
+        ServerContentTableThread contentTable = new ServerContentTableThread(clientId);
         contentTable.start();
-        ServerLogManagerTask logManager = new ServerLogManagerTask(cleanupInterval);
+        ServerLogManagerThread logManager = new ServerLogManagerThread(cleanupInterval);
         logManager.start();
-        new ServerHeartbeatSenderTask(serverId, heartbeatinterval).start();
+        new ServerHeartbeatSenderThread(serverId, heartbeatinterval).start();
 
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
@@ -49,7 +49,7 @@ public class Server {
                     (msg.getTipoMsg().equals("consult") && ConsultIsForThisServer(msg.getChave()))){
                     
                     logManager.SendMessage(msg);
-                    new ServerMessageHandlerTask(contentTable, msgRcv.toString()).start();    
+                    new ServerMessageHandlerThread(contentTable, msgRcv.toString()).start();    
                 }
             });
             

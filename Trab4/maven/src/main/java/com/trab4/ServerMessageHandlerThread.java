@@ -1,10 +1,10 @@
 package com.trab4;
 
-public class ServerMessageHandlerTask extends Thread{
-    ServerContentTableTask table;
+public class ServerMessageHandlerThread extends Thread{
+    ServerContentTableThread table;
     String msg;
     
-    ServerMessageHandlerTask(ServerContentTableTask table, String msg)
+    ServerMessageHandlerThread(ServerContentTableThread table, String msg)
     {
         this.table = table;
         this.msg = msg;

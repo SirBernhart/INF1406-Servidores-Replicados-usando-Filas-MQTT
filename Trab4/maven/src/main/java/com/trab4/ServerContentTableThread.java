@@ -9,7 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class ServerContentTableTask extends Thread{
+public class ServerContentTableThread extends Thread{
     private String ownerServerId;
     MemoryPersistence persistence = new MemoryPersistence();
     int qos = 2;
@@ -17,7 +17,7 @@ public class ServerContentTableTask extends Thread{
 
     private Map<String, String> hashTable = new HashMap<String, String>();
 
-    public ServerContentTableTask(String ownerServerId)
+    public ServerContentTableThread(String ownerServerId)
     {
         this.ownerServerId = ownerServerId;
     }
