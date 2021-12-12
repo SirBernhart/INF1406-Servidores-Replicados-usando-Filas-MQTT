@@ -1,5 +1,9 @@
 package com.trab4;
 
+import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -12,15 +16,20 @@ public class Server {
     static MemoryPersistence persistence = new MemoryPersistence();
     static int serverId;
     static int serverAmount;
+    
 
     public static void main(String args[]) {
         clientId = "Server " + args[0];
         serverAmount = Integer.parseInt(args[1]);
         serverId = Integer.parseInt(args[0]);
+        Long cleanupInterval = Long.parseLong(args[2]);
+
         System.out.println("====> Initializing server " + clientId + "\n");
 
-        ServerContentTable contentTable = new ServerContentTable(clientId);
+        ServerContentTableTask contentTable = new ServerContentTableTask(clientId);
         contentTable.start();
+        ServerLogManagerTask logManager = new ServerLogManagerTask(cleanupInterval);
+        logManager.start();
 
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
@@ -34,14 +43,15 @@ public class Server {
                 System.out.println("ID: " + clientId + " Message received: " + msgRcv.toString()+ "\n");
             
                 Message msg = Message.deserialize(msgRcv.toString());
+
                 if(msg.getTipoMsg().equals("insert") || 
                     (msg.getTipoMsg().equals("consult") && ConsultIsForThisServer(msg.getChave()))){
                     
-                    new ServerMessageHandler(contentTable, msgRcv.toString()).start();    
+                    logManager.SendMessage(msg);
+                    new ServerMessageHandlerTask(contentTable, msgRcv.toString()).start();    
                 }
             });
             
-
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
@@ -62,5 +72,5 @@ public class Server {
         }
 
         return (byteSum % serverAmount) == serverId;
-    } 
+    }   
 }
