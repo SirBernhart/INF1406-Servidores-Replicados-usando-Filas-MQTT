@@ -47,17 +47,34 @@ public class Client {
             MqttMessage message = new MqttMessage(content.getBytes());
 
             message.setQos(qos);
-            requestingClient.publish(topic, message);
+            
 
             if(msg.getTipoMsg().equals("consult"))
             {
-                //TODO: ficar esperando resposta
-            }
+                MqttClient clientExpectingResults = new MqttClient(broker, clientId + "Result", new MemoryPersistence());
+                MqttConnectOptions connOptsResults = new MqttConnectOptions();
+                connOptsResults.setCleanSession(true);
+                clientExpectingResults.connect(connOptsResults);
+                
+                requestingClient.publish(topic, message);
 
-            requestingClient.disconnect();
-            requestingClient.close();
-            System.out.println("Disconnected");
-            System.exit(0);
+                clientExpectingResults.subscribe(msg.getTopicoResp(), (topicRcv, msgRcv) -> {                    
+                    System.out.println("!!! Client " + clientId + " received result: " + msgRcv.toString());
+                    Thread.sleep(4000);
+                    clientExpectingResults.disconnect();
+                    clientExpectingResults.close();
+                    System.exit(0);
+                });
+            }
+            else
+            {
+                requestingClient.publish(topic, message);
+
+                requestingClient.disconnect();
+                requestingClient.close();
+                System.out.println("Disconnected");
+                System.exit(0);
+            }
         } 
         catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
