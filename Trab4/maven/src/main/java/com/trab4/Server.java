@@ -45,4 +45,16 @@ public class Server {
             me.printStackTrace();
         }
     }
+
+    private static boolean ConsultIsForThisServer(String key) {
+        int byteSum = 0;
+        char[] keyAsCharArray = key.toCharArray();
+
+        for(int i = 0 ; i < keyAsCharArray.length ; i++)
+        {
+            byteSum += (int)keyAsCharArray[i];
+        }
+
+        return (byteSum % serverAmount) == serverId;
+    } 
 }
