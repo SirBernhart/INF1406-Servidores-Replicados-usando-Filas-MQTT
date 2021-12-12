@@ -37,12 +37,13 @@ public class ServerManager
         serverProcesses = new Process[serverCount];
         
         for(int i = 0 ; i < serverCount ; i++) {
-            List<String> commands = new LinkedList<String>();
-            commands.add(Integer.toString(i));
-            commands.add(Integer.toString(serverCount));
-            commands.add(logCleanupInterval);
+            List<String> arguments = new LinkedList<String>();
+            arguments.add(Integer.toString(i));
+            arguments.add(Integer.toString(serverCount));
+            arguments.add(logCleanupInterval);
+            arguments.add(heartbeatInterval);
             try {
-                serverProcesses[i] = exec(Server.class, commands);
+                serverProcesses[i] = exec(Server.class, arguments);
             } 
             catch (IOException e) {
                 System.err.println("Failed to start server of ID " + i);
