@@ -6,7 +6,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-public class TimeoutHandler implements Runnable{
+public class TimeoutHandlerThread extends Thread{
 
     private Message msgContent;
     private Integer idserv;
@@ -19,7 +19,7 @@ public class TimeoutHandler implements Runnable{
     int qos                       = 2;
     MemoryPersistence persistence = new MemoryPersistence();
 
-    public TimeoutHandler(Integer pIdServ, long pHeartbeat) {
+    public TimeoutHandlerThread(Integer pIdServ, long pHeartbeat) {
         this.idserv = pIdServ;
         this.heartbeat = pHeartbeat;
     }

@@ -10,6 +10,7 @@ public class Monitor {
     private static int  serverCount;
 
     private static Message msgHeartbeat  = new Message();
+    private static Integer timeLimit            = 5; // MINUTOS
 
     static String topic                  = "inf1406-monitor";
     static String broker                 = "tcp://localhost:1883";
@@ -26,6 +27,9 @@ public class Monitor {
             ex.printStackTrace();
         }
 
+        HeartbeatArrayThread heartbeatArrayThread = new HeartbeatArrayThread(serverCount, timeLimit);
+        heartbeatArrayThread.start();
+
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -34,17 +38,11 @@ public class Monitor {
             mqttClient.connect(connOpts);
             System.out.println("ID: " + clientId + " Connected");
 
-            TimerTask timerTask = new TimerTask(serverCount);
-            Thread threadTimer = new Thread(timerTask);
-            threadTimer.start();
-
             mqttClient.subscribe(topic, (topicRcv, heartBeatRcv) -> {
                 System.out.println("Heartbeat received: " + heartBeatRcv); 
                 msgHeartbeat = Message.deserialize(heartBeatRcv.toString());
-
-                InsertTask insertTask = new InsertTask(serverCount, msgHeartbeat);
-                Thread threadInsertion = new Thread(insertTask);
-                threadInsertion.start();
+                InsertThread insertThread = new InsertThread(heartbeatArrayThread, msgHeartbeat.getIdServ());
+                insertThread.start();
             });
 
         } 
