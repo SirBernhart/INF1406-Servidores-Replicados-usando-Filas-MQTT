@@ -10,9 +10,13 @@ public class Server {
     static String broker       = "tcp://localhost:1883";//"tcp://mqtt.eclipseprojects.io:1883";
     static String clientId;
     static MemoryPersistence persistence = new MemoryPersistence();
+    static int serverId;
+    static int serverAmount;
 
     public static void main(String args[]) {
         clientId = "Server " + args[0];
+        serverAmount = Integer.parseInt(args[1]);
+        serverId = Integer.parseInt(args[0]);
         System.out.println("====> Initializing server " + clientId + "\n");
 
         ServerContentTable contentTable = new ServerContentTable();

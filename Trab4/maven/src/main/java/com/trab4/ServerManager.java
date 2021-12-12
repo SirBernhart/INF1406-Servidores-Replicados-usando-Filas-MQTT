@@ -37,6 +37,7 @@ public class ServerManager
         for(int i = 0 ; i < serverCount ; i++) {
             List<String> commands = new LinkedList<String>();
             commands.add(Integer.toString(i));
+            commands.add(Integer.toString(serverCount));
             try {
                 serverProcesses[i] = exec(Server.class, commands);
             } 
@@ -89,16 +90,10 @@ public class ServerManager
         command.add("exec:java");
         command.add("-Dexec.mainClass=" + className);
 
-        for(int i = 0 ; i < args.size() ; i++) {
-            argsCommand += args.get(i);
-            if(i+1 < args.size())
-            {
-                argsCommand += " ";
-            }
-        }
-        argsCommand += "\"";
-        
+        argsCommand += args.get(0);
         command.add(argsCommand);
+        
+        command.add(args.get(1) + "\"");
 
         System.out.println(command);
         ProcessBuilder builder = new ProcessBuilder(command);
