@@ -71,13 +71,12 @@ public class ServerHeartbeatSenderThread extends Thread{
         @Override
         public void run() {
             while(true){
+                heartbeatSender.SendHeartbeat();
                 try {
                     Thread.sleep(heartbeatInterval);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-    
-                heartbeatSender.SendHeartbeat();
+                }    
             }
         }
     }

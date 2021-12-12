@@ -2,13 +2,16 @@ package com.trab4;
 
 public class HeartbeatArrayThread extends Thread{
     private long heartBeatArray[];
-    private Message msg = new Message();
     private Integer timeLimit;
     private Integer serverCount;
 
     public HeartbeatArrayThread(Integer pServerCount, Integer pTimeLimit) {
         this.serverCount = pServerCount;
         this.timeLimit = pTimeLimit;
+        heartBeatArray = new long[pServerCount];
+        for(int i = 0 ; i < pServerCount ; i++){
+            heartBeatArray[i] = -1;
+        }
     }
 
     @Override
@@ -16,9 +19,11 @@ public class HeartbeatArrayThread extends Thread{
 
     public synchronized void operate(Message pMsg)
     {
+        System.out.println("Serialized msg: " + Message.serialize(pMsg));
+        System.out.println("IdServ: " + pMsg.getIdServ());
         if(pMsg.getTipoMsg().equals("insert"))
         {
-            heartBeatArray[msg.getIdServ()] = System.currentTimeMillis();
+            heartBeatArray[pMsg.getIdServ()] = System.currentTimeMillis();
         }
         else if (pMsg.getTipoMsg().equals("timer"))
         {
