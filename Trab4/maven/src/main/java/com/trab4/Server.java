@@ -17,12 +17,12 @@ public class Server {
     static int serverId;
     static int serverAmount;
     
-
     public static void main(String args[]) {
         clientId = "Server " + args[0];
         serverAmount = Integer.parseInt(args[1]);
         serverId = Integer.parseInt(args[0]);
         Long cleanupInterval = Long.parseLong(args[2]);
+        Long heartbeatinterval = Long.parseLong(args[3]);
 
         System.out.println("====> Initializing server " + clientId + "\n");
 
@@ -30,6 +30,7 @@ public class Server {
         contentTable.start();
         ServerLogManagerTask logManager = new ServerLogManagerTask(cleanupInterval);
         logManager.start();
+        new ServerHeartbeatSenderTask(serverId, heartbeatinterval).start();
 
         try {
             MqttClient mqttClient = new MqttClient(broker, clientId, persistence);

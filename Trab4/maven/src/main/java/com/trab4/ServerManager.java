@@ -15,6 +15,7 @@ public class ServerManager
     private static Process[] serverProcesses;
     private static int  serverCount, secondsBetweenKillingServer;
     private static String logCleanupInterval;
+    private static String heartbeatInterval;
     
     static String topic        = "inf1406-reqs";
     static int qos             = 2;
@@ -28,6 +29,7 @@ public class ServerManager
             serverCount = Integer.parseInt(args[0]);
             secondsBetweenKillingServer = Integer.parseInt(args[1]);
             logCleanupInterval = args[2];
+            heartbeatInterval = args[3];
         }
         catch(NumberFormatException ex){
             System.out.println("Values passed must be integers");
@@ -90,14 +92,14 @@ public class ServerManager
 
         List<String> command = new LinkedList<String>();
         command.add("D:\\Utilidades\\apache-maven-3.8.4\\bin\\mvn.cmd");
-        //command.add("compile");
         command.add("exec:java");
         command.add("-Dexec.mainClass=" + className);
 
         argsCommand += args.get(0);
         command.add(argsCommand);
         command.add(args.get(1));
-        command.add(args.get(2) + "\"");
+        command.add(args.get(2));
+        command.add(args.get(3) + "\"");
 
         System.out.println(command);
         ProcessBuilder builder = new ProcessBuilder(command);
