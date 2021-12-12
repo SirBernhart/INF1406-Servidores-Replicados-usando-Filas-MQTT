@@ -14,6 +14,7 @@ public class ServerManager
 {
     private static Process[] serverProcesses;
     private static int  serverCount, secondsBetweenKillingServer;
+    private static String logCleanupInterval;
     
     static String topic        = "inf1406-reqs";
     static int qos             = 2;
@@ -26,6 +27,7 @@ public class ServerManager
         try{
             serverCount = Integer.parseInt(args[0]);
             secondsBetweenKillingServer = Integer.parseInt(args[1]);
+            logCleanupInterval = args[2];
         }
         catch(NumberFormatException ex){
             System.out.println("Values passed must be integers");
@@ -38,6 +40,7 @@ public class ServerManager
             List<String> commands = new LinkedList<String>();
             commands.add(Integer.toString(i));
             commands.add(Integer.toString(serverCount));
+            commands.add(logCleanupInterval);
             try {
                 serverProcesses[i] = exec(Server.class, commands);
             } 
@@ -92,8 +95,8 @@ public class ServerManager
 
         argsCommand += args.get(0);
         command.add(argsCommand);
-        
-        command.add(args.get(1) + "\"");
+        command.add(args.get(1));
+        command.add(args.get(2) + "\"");
 
         System.out.println(command);
         ProcessBuilder builder = new ProcessBuilder(command);
