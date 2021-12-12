@@ -43,12 +43,11 @@ public class Client {
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             requestingClient.connect(connOpts);
-            System.out.println("Client " + clientId + " ==> Publishing message: "+content);
             MqttMessage message = new MqttMessage(content.getBytes());
-
+            
             message.setQos(qos);
             
-
+            System.out.println("Client " + clientId + " ==> Publishing message: "+content);
             if(msg.getTipoMsg().equals("consult"))
             {
                 MqttClient clientExpectingResults = new MqttClient(broker, clientId + "Result", new MemoryPersistence());
@@ -58,7 +57,8 @@ public class Client {
                 
                 requestingClient.publish(topic, message);
 
-                clientExpectingResults.subscribe(msg.getTopicoResp(), (topicRcv, msgRcv) -> {                    
+                clientExpectingResults.subscribe(msg.getTopicoResp(), (topicRcv, msgRcv) -> {
+                    
                     System.out.println("!!! Client " + clientId + " received result: " + msgRcv.toString());
                     Thread.sleep(4000);
                     clientExpectingResults.disconnect();
