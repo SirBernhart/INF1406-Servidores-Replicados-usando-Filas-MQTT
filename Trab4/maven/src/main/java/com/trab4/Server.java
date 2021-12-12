@@ -19,7 +19,7 @@ public class Server {
         serverId = Integer.parseInt(args[0]);
         System.out.println("====> Initializing server " + clientId + "\n");
 
-        ServerContentTable contentTable = new ServerContentTable();
+        ServerContentTable contentTable = new ServerContentTable(clientId);
         contentTable.start();
 
         try {
@@ -31,8 +31,14 @@ public class Server {
             System.out.println("ID: " + clientId + " Connected\n");
 
             mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
-                new ServerMessageHandler(contentTable, msgRcv.toString()).start();
                 System.out.println("ID: " + clientId + " Message received: " + msgRcv.toString()+ "\n");
+            
+                Message msg = Message.deserialize(msgRcv.toString());
+                if(msg.getTipoMsg().equals("insert") || 
+                    (msg.getTipoMsg().equals("consult") && ConsultIsForThisServer(msg.getChave()))){
+                    
+                    new ServerMessageHandler(contentTable, msgRcv.toString()).start();    
+                }
             });
             
 
