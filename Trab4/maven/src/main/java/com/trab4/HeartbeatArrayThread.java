@@ -15,7 +15,9 @@ public class HeartbeatArrayThread extends Thread{
     }
 
     @Override
-    public void run() {}
+    public void run() {
+        new TimerThread(timeLimit, this).start();;
+    }
 
     public synchronized void operate(Message pMsg)
     {
@@ -63,7 +65,7 @@ public class HeartbeatArrayThread extends Thread{
         public void run() {
             while(true){
                 try {
-                    Thread.sleep(timeLimit * 60 * 1000);
+                    Thread.sleep(timeLimit);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
