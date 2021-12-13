@@ -87,14 +87,11 @@ public class Server {
         int byteSum = 0;
         char[] keyAsCharArray = key.toCharArray();
 
-        System.out.println("Checking if consult is for " + clientId);
-
         for(int i = 0 ; i < keyAsCharArray.length ; i++)
         {
             byteSum += (int)keyAsCharArray[i];
         }
         int hash = byteSum % serverAmount;
-        System.out.println("Consult is for: " + hash);
 
         for (Integer serverId : serverIdResponsibilities) {
             if(serverId == hash) {

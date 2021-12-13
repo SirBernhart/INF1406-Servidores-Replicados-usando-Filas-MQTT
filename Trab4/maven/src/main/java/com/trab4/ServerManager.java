@@ -51,7 +51,7 @@ public class ServerManager
             mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
                 Message receivedMessage = Message.deserialize(msgRcv.toString());
                 if(receivedMessage.getTipoMsg().equals("falhaserv")) {
-                    System.out.println("ServerManager ==> !!! Server " + receivedMessage.getIdServ() + "has failed. Preparing a replacement...");
+                    System.out.println("ServerManager ==> !!! Server " + receivedMessage.getIdServ() + " has failed. Preparing a replacement...");
                     new RespawnServerTimer(receivedMessage.getIdServ()).start();
                 }
             });
