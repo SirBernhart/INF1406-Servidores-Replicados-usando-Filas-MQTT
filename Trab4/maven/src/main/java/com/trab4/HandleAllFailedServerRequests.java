@@ -22,19 +22,13 @@ public class HandleAllFailedServerRequests extends Thread{
         List<LogElement> log = logManager.SendMessage(getLogMsg);
 
         long lastHeartbeat = failedServerMsg.getVistoEm();
-        System.out.println("!! CHECKING LOGGED MESSAGES !!");
         for(int i = 0 ; i < log.size() ; i++) {
             Message loggedMessage = log.get(i).message;
-            System.out.println(Message.serialize(loggedMessage));
             if(log.get(i).timeReceived >= lastHeartbeat) {
-                System.out.println("Is in timeframe");
                 if(loggedMessage.getTipoMsg().equals("consult") && Server.ConsultIsForThisServer(loggedMessage.getChave())) {
-                    System.out.println("^^^ Will answer this one ^^^");
                     new ServerMessageHandlerThread(table, Message.serialize(loggedMessage)).start();
                 }
             }
         }  
     }
 }
-1639363988689
-1639364003382
