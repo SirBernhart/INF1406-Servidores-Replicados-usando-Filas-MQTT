@@ -16,13 +16,18 @@ public class ServerHeartbeatSenderThread extends Thread{
     MemoryPersistence persistence = new MemoryPersistence();
     MqttClient heartbeatClient;
     MqttMessage message;
+    Long heartbeatInterval;
 
     public ServerHeartbeatSenderThread(int serverId, Long heartbeatInterval){
         heartbeatMsg = new Message();
         heartbeatMsg.setTipoMsg("heartbeat");
         heartbeatMsg.setIdServ(serverId);
         clientId = "Heartbeat " + serverId;
-        
+        this.heartbeatInterval = heartbeatInterval;
+    }
+    
+    @Override
+    public void run() {
         try {
             heartbeatClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -40,7 +45,6 @@ public class ServerHeartbeatSenderThread extends Thread{
             System.out.println("excep "+me);
             me.printStackTrace();
         }
-
         new HeartbeatTimer(heartbeatInterval, this).start();
     }
 
