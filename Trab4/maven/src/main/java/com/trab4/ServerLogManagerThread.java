@@ -37,7 +37,7 @@ public class ServerLogManagerThread extends Thread{
         }
         else if(msg.getTipoMsg().equals("insert") || msg.getTipoMsg().equals("consult"))
         {
-            LogElement log = new LogElement(msg, Instant.now().toEpochMilli());
+            LogElement log = new LogElement(msg, System.currentTimeMillis());
             messageLog.add(log);
             System.out.println("Inserted log: " + Message.serialize(msg) + "\n");
         }
