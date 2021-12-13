@@ -22,6 +22,7 @@ public class TimeoutHandlerThread extends Thread{
     public TimeoutHandlerThread(Integer pIdServ, long pHeartbeat) {
         this.idserv = pIdServ;
         this.heartbeat = pHeartbeat;
+        clientId += " Server " + pIdServ;
     }
 
     @Override
@@ -34,20 +35,18 @@ public class TimeoutHandlerThread extends Thread{
         content = Message.serialize(msgContent);
         
         try {
-            MqttClient requestingClient = new MqttClient(broker, clientId, persistence);
+            MqttClient serverFailureClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
-            requestingClient.connect(connOpts);
+            serverFailureClient.connect(connOpts);
             System.out.println("Monitor ==> Publishing message: "+ content);
             MqttMessage message = new MqttMessage(content.getBytes());
 
             message.setQos(qos);
-            requestingClient.publish(topic, message);
+            serverFailureClient.publish(topic, message);
 
-            requestingClient.disconnect();
-            requestingClient.close();
-            System.out.println("Disconnected");
-            System.exit(0);
+            serverFailureClient.disconnect();
+            serverFailureClient.close();
         } 
         catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
