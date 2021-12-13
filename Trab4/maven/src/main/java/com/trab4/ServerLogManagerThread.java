@@ -18,7 +18,7 @@ public class ServerLogManagerThread extends Thread{
         new CleanupTimer(cleanupInterval, this).start();;
     }
 
-    public synchronized void SendMessage(Message msg)
+    public synchronized List<LogElement> SendMessage(Message msg)
     {
         if(msg.getTipoMsg().equals("cleanup"))
         {
@@ -39,8 +39,13 @@ public class ServerLogManagerThread extends Thread{
         {
             LogElement log = new LogElement(msg, Instant.now().toEpochMilli());
             messageLog.add(log);
-            System.out.println("Inserted log. Log list: " + messageLog + "\n");
+            System.out.println("Inserted log: " + Message.serialize(msg) + "\n");
         }
+        else if(msg.getTipoMsg().equals("getlog")) {
+            return new LinkedList<LogElement>(messageLog); // returns a copy
+        }
+
+        return null;
     }
 
     class LogElement {

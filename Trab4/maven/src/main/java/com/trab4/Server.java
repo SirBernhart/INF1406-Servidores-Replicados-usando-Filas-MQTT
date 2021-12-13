@@ -4,6 +4,8 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.trab4.ServerLogManagerThread.LogElement;
+
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -16,11 +18,13 @@ public class Server {
     static MemoryPersistence persistence = new MemoryPersistence();
     static int serverId;
     static int serverAmount;
+    static List<Integer> serverIdResponsibilities = new LinkedList<Integer>();
     
     public static void main(String args[]) {
         clientId = "Server " + args[0];
         serverAmount = Integer.parseInt(args[1]);
         serverId = Integer.parseInt(args[0]);
+        serverIdResponsibilities.add(serverId);
         Long cleanupInterval = Long.parseLong(args[2]);
         Long heartbeatinterval = Long.parseLong(args[3]);
 
@@ -45,11 +49,27 @@ public class Server {
             
                 Message msg = Message.deserialize(msgRcv.toString());
 
-                if(msg.getTipoMsg().equals("insert") || 
-                    (msg.getTipoMsg().equals("consult") && ConsultIsForThisServer(msg.getChave()))){
-                    
+                if(msg.getTipoMsg().equals("insert")) {
                     logManager.SendMessage(msg);
-                    new ServerMessageHandlerThread(contentTable, msgRcv.toString()).start();    
+                    new ServerMessageHandlerThread(contentTable, msgRcv.toString()).start(); 
+                }
+                else if((msg.getTipoMsg().equals("consult"))) {
+                    logManager.SendMessage(msg);
+
+                    if(ConsultIsForThisServer(msg.getChave())){
+                        System.out.println("!!! " + clientId + " will answer consult");
+                        new ServerMessageHandlerThread(contentTable, msgRcv.toString()).start();    
+                    }
+                }
+                else if(msg.getTipoMsg().equals("falhaserv")) {
+                    if((msg.getIdServ() + 1)%serverAmount == serverId) {
+                        System.out.println("!!! " + clientId + " will handle the failed requests");
+                        serverIdResponsibilities.add(msg.getIdServ());
+                        new HandleAllFailedServerRequests(logManager, msg, contentTable).start();;
+                    }
+                }
+                else if(msg.getTipoMsg().equals("novoserv")) {
+                    serverIdResponsibilities.remove(msg.getIdServ());
                 }
             });
             
@@ -63,15 +83,25 @@ public class Server {
         }
     }
 
-    private static boolean ConsultIsForThisServer(String key) {
+    public static boolean ConsultIsForThisServer(String key) {
         int byteSum = 0;
         char[] keyAsCharArray = key.toCharArray();
+
+        System.out.println("Checking if consult is for " + clientId);
 
         for(int i = 0 ; i < keyAsCharArray.length ; i++)
         {
             byteSum += (int)keyAsCharArray[i];
         }
+        int hash = byteSum % serverAmount;
+        System.out.println("Consult is for: " + hash);
 
-        return (byteSum % serverAmount) == serverId;
+        for (Integer serverId : serverIdResponsibilities) {
+            if(serverId == hash) {
+                return true;
+            }
+        }
+
+        return false;
     }   
 }

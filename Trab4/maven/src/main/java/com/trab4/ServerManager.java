@@ -13,8 +13,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class ServerManager 
 {
-    private static Process[] serverProcesses;
-    private static int  serverCount, secondsBetweenKillingServer;
+    private static int  serverCount;
     private static String logCleanupInterval;
     private static String heartbeatInterval;
     
@@ -29,16 +28,13 @@ public class ServerManager
     {
         try{
             serverCount = Integer.parseInt(args[0]);
-            secondsBetweenKillingServer = Integer.parseInt(args[1]);
-            logCleanupInterval = args[2];
-            heartbeatInterval = args[3];
+            logCleanupInterval = args[1];
+            heartbeatInterval = args[2];
         }
         catch(NumberFormatException ex){
             System.out.println("Values passed must be integers");
             ex.printStackTrace();
         }
-
-        serverProcesses = new Process[serverCount];
         
         for(int i = 0 ; i < serverCount ; i++) {
             SpawnServer(i, false);
@@ -100,7 +96,7 @@ public class ServerManager
         arguments.add(logCleanupInterval);
         arguments.add(heartbeatInterval);
         try {
-            serverProcesses[serverId] = exec(Server.class, arguments);
+            exec(Server.class, arguments);
         } 
         catch (IOException e) {
             System.err.println("Failed to start server of ID " + serverId);
@@ -133,7 +129,7 @@ public class ServerManager
 }
 
 class RespawnServerTimer extends Thread {
-    Long respawnInterval = 10000l;
+    Long respawnInterval = 30000l;
     int serverIdToRespawn;
 
     public RespawnServerTimer(int serverIdToRespawn){
