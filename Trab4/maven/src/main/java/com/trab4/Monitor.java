@@ -10,7 +10,7 @@ public class Monitor {
     private static int  serverCount;
 
     private static Message msgHeartbeat  = new Message();
-    private static Integer timeLimit            = 5; // MINUTOS
+    private static Integer timeLimit;
 
     static String topic                  = "inf1406-monitor";
     static String broker                 = "tcp://localhost:1883";
@@ -21,6 +21,7 @@ public class Monitor {
     {
         try{
             serverCount = Integer.parseInt(args[0]);
+            timeLimit = Integer.parseInt(args[1]) * 1000;
         }
         catch(NumberFormatException ex){
             System.out.println("Values passed must be integers");
@@ -39,7 +40,6 @@ public class Monitor {
             System.out.println("ID: " + clientId + " Connected");
 
             mqttClient.subscribe(topic, (topicRcv, heartBeatRcv) -> {
-                System.out.println("Heartbeat received: " + heartBeatRcv); 
                 msgHeartbeat = Message.deserialize(heartBeatRcv.toString());
                 InsertThread insertThread = new InsertThread(heartbeatArrayThread, msgHeartbeat.getIdServ());
                 insertThread.start();
