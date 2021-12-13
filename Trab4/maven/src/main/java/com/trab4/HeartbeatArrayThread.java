@@ -21,14 +21,14 @@ public class HeartbeatArrayThread extends Thread{
 
     public synchronized void operate(Message pMsg)
     {
-        System.out.println("Serialized msg: " + Message.serialize(pMsg));
-        System.out.println("IdServ: " + pMsg.getIdServ());
         if(pMsg.getTipoMsg().equals("insert"))
         {
             heartBeatArray[pMsg.getIdServ()] = System.currentTimeMillis();
+            System.out.println("New Heartbeat: " + Message.serialize(pMsg) + "at " + heartBeatArray[pMsg.getIdServ()]+"\n");
         }
         else if (pMsg.getTipoMsg().equals("timer"))
         {
+            System.out.println("!!! CHECKING FOR TIMED OUT HEARTBEATS !!!"+"\n");
             long now = System.currentTimeMillis();
 
             for(int index = 0 ; index < serverCount ; index++)
@@ -37,6 +37,8 @@ public class HeartbeatArrayThread extends Thread{
                 
                 if((now - heartBeatArray[index]) >= timeLimit) {
                     //SERVIDOR FALHOU
+                    System.out.println("Server "+index+" has timed out!!\n");
+
                     TimeoutHandlerThread timeoutHandlerThread = new TimeoutHandlerThread(index, heartBeatArray[index]);
                     timeoutHandlerThread.start();
                     heartBeatArray[index] = -1L;
