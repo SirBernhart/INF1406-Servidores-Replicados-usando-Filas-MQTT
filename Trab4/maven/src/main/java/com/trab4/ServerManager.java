@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class ServerManager 
@@ -17,6 +18,7 @@ public class ServerManager
     private static String logCleanupInterval;
     private static String heartbeatInterval;
     
+    static MqttClient mqttClient;
     static String topic        = "inf1406-reqs";
     static int qos             = 2;
     static String broker       = "tcp://localhost:1883";
@@ -39,41 +41,24 @@ public class ServerManager
         serverProcesses = new Process[serverCount];
         
         for(int i = 0 ; i < serverCount ; i++) {
-            List<String> arguments = new LinkedList<String>();
-            arguments.add(Integer.toString(i));
-            arguments.add(Integer.toString(serverCount));
-            arguments.add(logCleanupInterval);
-            arguments.add(heartbeatInterval);
-            try {
-                serverProcesses[i] = exec(Server.class, arguments);
-            } 
-            catch (IOException e) {
-                System.err.println("Failed to start server of ID " + i);
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                System.err.println("Failed to start server of ID " + i);
-                e.printStackTrace();
-            }
+            SpawnServer(i, false);
         }
 
         try {
-            MqttClient mqttClient = new MqttClient(broker, clientId, persistence);
+            mqttClient = new MqttClient(broker, clientId, persistence);
             MqttConnectOptions connOpts = new MqttConnectOptions();
             connOpts.setCleanSession(true);
             System.out.println("Connecting to broker: "+broker);
             mqttClient.connect(connOpts);
             System.out.println("Connected");
-            /*mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
-                System.out.println("Message received: " + msgRcv);
-            });
-            
-            for (Process server : serverProcesses) {
-                server.destroy();
-            }*/
 
-            mqttClient.disconnect();
-            System.out.println("Disconnected");
-            System.exit(0);
+            mqttClient.subscribe(topic, (topicRcv, msgRcv) -> {
+                Message receivedMessage = Message.deserialize(msgRcv.toString());
+                if(receivedMessage.getTipoMsg().equals("falhaserv")) {
+                    System.out.println("ServerManager ==> !!! Server " + receivedMessage.getIdServ() + "has failed. Preparing a replacement...");
+                    new RespawnServerTimer(receivedMessage.getIdServ()).start();
+                }
+            });
         } catch(MqttException me) {
             System.out.println("reason "+me.getReasonCode());
             System.out.println("msg "+me.getMessage());
@@ -84,7 +69,7 @@ public class ServerManager
         } 
     }
 
-    public static Process exec(Class klass, List<String> args) throws IOException, InterruptedException {
+    private static Process exec(Class klass, List<String> args) throws IOException, InterruptedException {
         String mavenProjPath = System.getProperty("user.dir");
 
         String className = "\"" + klass.getName() + "\"";
@@ -105,5 +90,65 @@ public class ServerManager
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.directory(new File(mavenProjPath));
         return builder.inheritIO().start();
+    }
+
+    public static void SpawnServer(int serverId, boolean isReplacement)
+    {
+        List<String> arguments = new LinkedList<String>();
+        arguments.add(Integer.toString(serverId));
+        arguments.add(Integer.toString(serverCount));
+        arguments.add(logCleanupInterval);
+        arguments.add(heartbeatInterval);
+        try {
+            serverProcesses[serverId] = exec(Server.class, arguments);
+        } 
+        catch (IOException e) {
+            System.err.println("Failed to start server of ID " + serverId);
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            System.err.println("Failed to start server of ID " + serverId);
+            e.printStackTrace();
+        }
+        if(isReplacement) {
+            try {
+                Message newServMsg = new Message();
+                newServMsg.setTipoMsg("novoserv");
+                newServMsg.setIdServ(serverId);
+                newServMsg.setTopicoResp("novoserv " + serverId);
+                MqttMessage mqttMessage = new MqttMessage(Message.serialize(newServMsg).getBytes());
+                System.out.println("ServerManager ==> Publishing message: "+mqttMessage);
+    
+                mqttClient.publish(topic, mqttMessage);
+            }
+            catch(MqttException me) {
+                System.out.println("reason "+me.getReasonCode());
+                System.out.println("msg "+me.getMessage());
+                System.out.println("loc "+me.getLocalizedMessage());
+                System.out.println("cause "+me.getCause());
+                System.out.println("excep "+me);
+                me.printStackTrace();
+            }
+        }
+    }
+}
+
+class RespawnServerTimer extends Thread {
+    Long respawnInterval = 10000l;
+    int serverIdToRespawn;
+
+    public RespawnServerTimer(int serverIdToRespawn){
+        this.serverIdToRespawn = serverIdToRespawn;
+    }
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(respawnInterval);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("ServerManager ==> !!! CREATING NEW SERVER !!!");
+        ServerManager.SpawnServer(serverIdToRespawn, true);
     }
 }
