@@ -43,9 +43,6 @@ public class HeartbeatArrayThread extends Thread{
                     timeoutHandlerThread.start();
                     heartBeatArray[index] = -1L;
                 }
-                else {
-                    heartBeatArray[index] = System.currentTimeMillis();
-                }
             }
         }
     }
